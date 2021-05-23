@@ -16,59 +16,44 @@ func main() {
 	cwd := filepath.Dir(exe)
 	fmt.Println("Executable path:", cwd)
 
-	pyPath := filepath.Join(cwd, "test.py")
-	fmt.Println("test.py path:", pyPath)
+	alicePath := filepath.Join(cwd, "../alice/alice.exe")
+	fmt.Println("alice.go path:", alicePath)
 
-	// pyStdout, err := os.Create(filepath.Join(cwd, "stdout.txt"))
-	// if err != nil {
-	//  	panic(err)
-	// }
-
-	pyCmd := exec.Command("python", pyPath)
-	pyCmd.Dir = cwd
-	// pyCmd.Stdout = pyStdout
-	pyStdout, err := pyCmd.StdoutPipe()
+	alice := exec.Command(alicePath)
+	alice.Dir = cwd
+	aliceStdout, err := alice.StdoutPipe()
 	if err != nil {
 		panic(err)
 	}
+	aliceStderr, err := alice.StderrPipe()
+	if err != nil {
+		panic(err)
+	}
+	if err := alice.Start(); err != nil {
+		panic(err)
+	}
 
-	done := make(chan struct{})
-
-	scanner := bufio.NewScanner(pyStdout)
 	go func() {
-		fmt.Println("foo")
+		scanner := bufio.NewScanner(aliceStderr)
 		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-			fmt.Println("foo")
+			line := scanner.Text()
+			fmt.Println("Alice2:", line)
 		}
 		if err := scanner.Err(); err != nil {
 			panic(err)
 		}
-		done <- struct{}{}
 	}()
 
-	if err := pyCmd.Start(); err != nil {
-		panic(err)
-	}
-	<-done
+	go func() {
+		scanner := bufio.NewScanner(aliceStdout)
+		for scanner.Scan() {
+			line := scanner.Text()
+			fmt.Println("Alice1:", line)
+		}
+		if err := scanner.Err(); err != nil {
+			panic(err)
+		}
+	}()
 
-	if err := pyCmd.Wait(); err != nil {
-		panic(err)
-	}
-
-	return
-
-	// cmd := exec.Command("python", "test.py")
-	// cwd, err := filepath.Abs()
-	// cmd.Dir =
-	// 	cmd.Start()
-
-	// alice := exec.Command("python", "test.py")
-	// alice_stdout, _ := alice.StdoutPipe()
-	// alice.Start()
-	// r := bufio.NewReader(alice_stdout)
-	// for {
-	// 	line, _, _ := r.ReadLine()
-	// 	fmt.Printf(string(line))
-	// }
+	alice.Wait()
 }
