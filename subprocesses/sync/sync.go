@@ -39,8 +39,6 @@ func main() {
 	scanner := bufio.NewScanner(pyStdout)
 	fmt.Println("Foo")
 	for scanner.Scan() {
-		fmt.Println("Foo")
-
 		fmt.Println(scanner.Text())
 	}
 	if err := scanner.Err(); err != nil {
