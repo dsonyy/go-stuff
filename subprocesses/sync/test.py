@@ -1,8 +1,14 @@
 import sys
 import time
 
+f = open("i-was-here.txt", "w")
+f.write("I was here.")
+f.close()
+
+
+for i in sys.argv:
+    print(i, end=", ")
+
 while True:
-    time.sleep(1)
-    for i in sys.argv:
-        print(i, end=", ")
-    print("")
+    print("aaaa")
+    time.sleep(0.5)
