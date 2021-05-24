@@ -10,7 +10,6 @@ import (
 
 func main() {
 	stdout, stderr := bufio.NewWriter(os.Stdout), bufio.NewWriter(os.Stderr)
-	stdout.Buffered()
 
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
