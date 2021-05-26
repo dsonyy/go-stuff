@@ -10,8 +10,8 @@ import (
 func main() {
 	// Setting up the port
 	options := serial.OpenOptions{
-		PortName:        "COM1",
-		BaudRate:        19200,
+		PortName:        "COM8",
+		BaudRate:        9600,
 		DataBits:        8,
 		MinimumReadSize: 4,
 	}
