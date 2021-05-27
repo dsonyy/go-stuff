@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jacobsa/go-serial/serial"
@@ -38,26 +39,16 @@ func main() {
 			yGyroRaw := mergeBytes(buf[11], buf[12])
 			zGyroRaw := mergeBytes(buf[13], buf[14])
 
-			// xAcc := float64(xAccRaw-0) / 16384.0
-			// yAcc := float64(yAccRaw-0) / 16384.0
-			// zAcc := float64(zAccRaw-0) / 16384.0
-			// xGyro := float64(xGyroRaw+42) / 16.4
-			// yGyro := float64(yGyroRaw-9) / 16.4
-			// zGyro := float64(zGyroRaw+29) / 16.4
-
-			xAcc := float64(xAccRaw) * 9.8 * 2 / 32768
-			yAcc := float64(yAccRaw) * 9.8 * 2 / 32768
-			zAcc := float64(zAccRaw) * 9.8 * 2 / 32768
-			xGyro := float64(xGyroRaw) * (3.14159 / 180) / 1000 / 32768
-			yGyro := float64(yGyroRaw) * (3.14159 / 180) / 1000 / 32768
-			zGyro := float64(zGyroRaw) * (3.14159 / 180) / 1000 / 32768
-
-			log.Printf("LD-   %5.1f %5.1f %5.1f   %5.1f %5.1f %5.1f   S\n", xGyro, yGyro, zGyro, xAcc, yAcc, zAcc)
+			fmt.Printf("%5d %5d %5d   %5d %5d %5d \n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw)
 		}
 	}
 }
 
 // mergeBytes merges two uint8s to one uint16.
-func mergeBytes(left8 byte, right8 byte) uint16 {
-	return (uint16(left8) << 8) | uint16(right8)
+func mergeBytes(left8 byte, right8 byte) (v int) {
+	v = int((uint16(left8) << 8) | uint16(right8))
+	if v >= 32768 {
+		v = -65536 + v
+	}
+	return
 }
