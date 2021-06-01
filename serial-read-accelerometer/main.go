@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"os"
+	"time"
 
-	"github.com/jacobsa/go-serial/serial"
+	"github.com/tarm/serial"
 )
 
 // Calibration offsets for: ACCEL_FS_2, MPU6050_GYRO_FS_250
@@ -19,40 +20,65 @@ const (
 )
 
 func main() {
+	// Logger
+	log.SetFlags(0)
+
 	// Setting up the port
-	options := serial.OpenOptions{
-		PortName:        os.Args[1],
-		BaudRate:        9600,
-		DataBits:        8,
-		MinimumReadSize: 1,
-	}
-	port, err := serial.Open(options)
-	defer port.Close()
+	config := &serial.Config{Name: os.Args[1], Baud: 9600}
+	port, err := serial.OpenPort(config)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	defer port.Close()
 
 	// Loop
+	data := make([]byte, 17)
+	t := time.Now()
 	for {
-		buf := make([]byte, 17)
-		_, err = port.Read(buf)
-		if err != nil {
-			log.Println(err)
-			break
+		if err := readFrame(port, data, 'L'); err != nil {
+			log.Printf("error: %s\n", err)
 		}
 
-		if buf[0] == 'L' && buf[1] == 'D' && buf[2] == '-' {
-			xAccRaw := mergeBytes(buf[3], buf[4]) + xAccOffset
-			yAccRaw := mergeBytes(buf[5], buf[6]) + yAccOffset
-			zAccRaw := mergeBytes(buf[7], buf[8]) + zAccOffset
-			xGyroRaw := mergeBytes(buf[9], buf[10]) + xGyroOffset
-			yGyroRaw := mergeBytes(buf[11], buf[12]) + yGyroOffset
-			zGyroRaw := mergeBytes(buf[13], buf[14]) + zGyroOffset
+		if data[0] == 'L' && data[1] == 'D' && data[2] == '-' && data[15] == '#' {
+			xAccRaw := mergeBytes(data[3], data[4]) + xAccOffset
+			yAccRaw := mergeBytes(data[5], data[6]) + yAccOffset
+			zAccRaw := mergeBytes(data[7], data[8]) + zAccOffset
+			xGyroRaw := mergeBytes(data[9], data[10]) + xGyroOffset
+			yGyroRaw := mergeBytes(data[11], data[12]) + yGyroOffset
+			zGyroRaw := mergeBytes(data[13], data[14]) + zGyroOffset
+			timeDiff := time.Now().Sub(t)
+			t = time.Now()
 
-			fmt.Printf("%5d %5d %5d   %5d %5d %5d \n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw)
+			log.Printf("OK %5d %5d %5d   %5d %5d %5d   %d\n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw, timeDiff.Nanoseconds())
+		} else {
+			log.Println("BAD FRAME")
+			continue
 		}
 	}
+}
+
+func readFrame(port *serial.Port, data []byte, header rune) (err error) {
+	scan := false
+	for i := 0; i < 17; i++ {
+		buf := make([]byte, 1)
+		_, err := port.Read(buf)
+		if err != nil {
+			return errors.New("cannot read from port")
+		}
+
+		if scan {
+			data[i] = buf[0]
+		} else {
+			if buf[0] == byte(header) {
+				scan = true
+				data[i] = buf[0]
+			} else {
+				return errors.New("lost some data")
+			}
+		}
+	}
+	return nil
 }
 
 // mergeBytes merges two uint8s to one uint16.

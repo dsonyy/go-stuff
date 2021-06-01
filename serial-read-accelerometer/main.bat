@@ -1,2 +1,2 @@
 @echo off
-main.exe COM10
+main.exe COM11
