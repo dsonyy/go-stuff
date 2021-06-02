@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -33,24 +34,25 @@ func main() {
 	defer port.Close()
 
 	// Loop
-	data := make([]byte, 17)
+	data := make([]byte, 18)
 	t := time.Now()
 	for {
 		if err := readFrame(port, data, 'L'); err != nil {
 			log.Printf("error: %s\n", err)
 		}
 
-		if data[0] == 'L' && data[1] == 'D' && data[2] == 12 && data[15] == '#' {
-			xAccRaw := mergeBytes(data[3], data[4]) + xAccOffset
-			yAccRaw := mergeBytes(data[5], data[6]) + yAccOffset
-			zAccRaw := mergeBytes(data[7], data[8]) + zAccOffset
-			xGyroRaw := mergeBytes(data[9], data[10]) + xGyroOffset
-			yGyroRaw := mergeBytes(data[11], data[12]) + yGyroOffset
-			zGyroRaw := mergeBytes(data[13], data[14]) + zGyroOffset
+		if data[0] == 'L' && data[1] == 'D' && data[2] == 12 && data[3] == '+' && data[16] == '#' {
+			xAccRaw := mergeBytes(data[4], data[5]) + xAccOffset
+			yAccRaw := mergeBytes(data[6], data[7]) + yAccOffset
+			zAccRaw := mergeBytes(data[8], data[9]) + zAccOffset
+			xGyroRaw := mergeBytes(data[10], data[11]) + xGyroOffset
+			yGyroRaw := mergeBytes(data[12], data[13]) + yGyroOffset
+			zGyroRaw := mergeBytes(data[14], data[15]) + zGyroOffset
 			timeDiff := time.Now().Sub(t)
 			t = time.Now()
 
 			log.Printf("OK %5d %5d %5d   %5d %5d %5d   %d\n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw, timeDiff.Nanoseconds())
+			fmt.Printf("%5d %5d %5d   %5d %5d %5d\n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw)
 		} else {
 			log.Println("BAD FRAME")
 			continue
@@ -60,7 +62,7 @@ func main() {
 
 func readFrame(port *serial.Port, data []byte, header rune) (err error) {
 	scan := false
-	for i := 0; i < 17; i++ {
+	for i := 0; i < 18; i++ {
 		buf := make([]byte, 1)
 		_, err := port.Read(buf)
 		if err != nil {
