@@ -40,7 +40,7 @@ func main() {
 			log.Printf("error: %s\n", err)
 		}
 
-		if data[0] == 'L' && data[1] == 'D' && data[2] == '-' && data[15] == '#' {
+		if data[0] == 'L' && data[1] == 'D' && data[2] == 12 && data[15] == '#' {
 			xAccRaw := mergeBytes(data[3], data[4]) + xAccOffset
 			yAccRaw := mergeBytes(data[5], data[6]) + yAccOffset
 			zAccRaw := mergeBytes(data[7], data[8]) + zAccOffset
