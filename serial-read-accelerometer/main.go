@@ -25,7 +25,7 @@ func main() {
 	log.SetFlags(0)
 
 	// Setting up the port
-	config := &serial.Config{Name: os.Args[1], Baud: 9600}
+	config := &serial.Config{Name: os.Args[1], Baud: 19200}
 	port, err := serial.OpenPort(config)
 	if err != nil {
 		log.Println(err)
@@ -40,7 +40,7 @@ func main() {
 		if err := readFrame(port, data, 'L'); err != nil {
 			log.Printf("error: %s\n", err)
 		}
-
+		log.Println(data)
 		if data[0] == 'L' && data[1] == 'D' && data[2] == 12 && data[3] == '+' && data[16] == '#' {
 			xAccRaw := mergeBytes(data[4], data[5]) + xAccOffset
 			yAccRaw := mergeBytes(data[6], data[7]) + yAccOffset
