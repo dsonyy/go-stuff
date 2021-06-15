@@ -19,9 +19,10 @@ func readWritePipe(streamSrc *io.ReadCloser, streamTgt *io.WriteCloser) {
 	scanner := bufio.NewScanner(*streamSrc)
 	writer := bufio.NewWriter(*streamTgt)
 
+	scanner.Split(bufio.ScanRunes)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if _, err := writer.WriteString(line + "\n"); err != nil {
+		token := scanner.Text()
+		if _, err := writer.WriteString(token); err != nil {
 			panic(err)
 		}
 		writer.Flush()
