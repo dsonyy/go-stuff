@@ -35,13 +35,26 @@ Random stuff written in Go.
     
     <img src="doc/mpu6050.jpg" width=400>
     
+    Real-time accelerometer and gyroscope data can be visualised with this [Python script](https://github.com/dsonyy/python-stuff/tree/master/accelerometer-live-plot):
+    
+    **[YouTube video](https://www.youtube.com/watch?v=J4pH3LHojVM)**
+    
+    <img src="https://raw.githubusercontent.com/dsonyy/python-stuff/master/accelerometer-live-plot/example.png" width=600>
+    
+    **Usage:**
+    ```
+    $ go run serial-read-accel.go | python accel-plot.py
+    ```
+    
+    
+    
 - **pipeline** - simple cross-platform emulation of well-known Unix-like pipelines in Go. 
   
     It was inspired by the fact that Windows 'pipelines' behaviours in different way. They buffer entire output of the first program, and when its execution is finished, send it to the next one. In case where data stream of the first program is continuous and never ends, another approach is required. This program may solve this issue because it immediately passes characters to the next process.
     **Example usage:**
     
     ```
-    go run .\pipeline.go python .\programs\alice.py -> python .\programs\bob.py -> python .\programs\carol.py
+    > go run .\pipeline.go python .\programs\alice.py -> python .\programs\bob.py -> python .\programs\carol.py
     ```
     Note that `->` is used because `|` is reserved.
     
