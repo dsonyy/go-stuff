@@ -44,6 +44,6 @@ func main() {
 			log.Println(err)
 			break
 		}
-		log.Println("Recieved:", buf)
+		log.Println("Received:", buf)
 	}
 }
