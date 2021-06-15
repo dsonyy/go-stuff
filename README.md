@@ -50,7 +50,7 @@ Random stuff written in Go.
     
 - **pipeline** - simple cross-platform emulation of well-known Unix-like pipelines in Go. 
   
-    It was inspired by the fact that Windows 'pipelines' behaviours in different way. They buffer entire output of the first program, and when its execution is finished, send it to the next one. In case where data stream of the first program is continuous and never ends, another approach is required. This program may solve this issue because it immediately passes characters to the next process.
+    It was inspired by the fact that Windows 'pipelines' behaviour in different way. They buffer entire output of the first program, and when its execution is finished, send it to the next one. In case where data stream of the first program is continuous and never ends, another approach is required. This program may solve this issue because it immediately passes characters to the next process.
     **Example usage:**
     
     ```
