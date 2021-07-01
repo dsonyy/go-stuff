@@ -46,7 +46,13 @@ Random stuff written in Go.
     $ go run serial-read-accel.go | python accel-plot.py
     ```
     
+- **serial-read-quaternion** - reading quaternion rotation data frames sent via serial port. Based on the previous *serial-read-accel* project.
+
+    Real-time stream of quaternion rotations can be visualised with this [C++ program](https://github.com/dsonyy/cpp-stuff/tree/master/angle-visualization):
     
+    **[YouTube video](https://www.youtube.com/watch?v=c_Tut2h9w9w)**
+    
+    <img width=400 src="https://raw.githubusercontent.com/dsonyy/cpp-stuff/master/docs/angle.png">
     
 - **pipeline** - simple cross-platform emulation of well-known Unix-like pipelines in Go. 
   
