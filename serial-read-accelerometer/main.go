@@ -12,12 +12,12 @@ import (
 
 // Calibration offsets for: ACCEL_FS_2, MPU6050_GYRO_FS_250
 const (
-	xAccOffset  = 812.0
-	yAccOffset  = 118.0
-	zAccOffset  = -14750.0 + 16384.0
-	xGyroOffset = 55.0
-	yGyroOffset = -56.0
-	zGyroOffset = 39.0
+	xAccOffset  = 0 // 812.0
+	yAccOffset  = 0 // 118.0
+	zAccOffset  = 0 // -14750.0 + 16384.0
+	xGyroOffset = 0 // 55.0
+	yGyroOffset = 0 // -56.0
+	zGyroOffset = 0 // 39.0
 )
 
 func main() {
