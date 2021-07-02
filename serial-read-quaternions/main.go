@@ -32,7 +32,7 @@ func main() {
 		}
 		log.Println(data)
 		if data[0] == 'L' && data[1] == 'Q' && data[2] == 16 && data[3] == '+' && data[20] == '#' {
-			qw := Float32frombytes(data[4:8]) * 180.0
+			qw := math.Acos(float64(Float32frombytes(data[4:8]))) * 2 * 57.2957795
 			qx := Float32frombytes(data[8:12])
 			qy := Float32frombytes(data[12:16])
 			qz := Float32frombytes(data[16:20])
