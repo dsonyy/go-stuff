@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"time"
 
@@ -24,31 +26,31 @@ func main() {
 	defer port.Close()
 
 	// Loop
-	data := make([]byte, 24)
+	data := make([]byte, 42)
 	t := time.Now()
 	for {
 		if err := readFrame(port, data, 'L'); err != nil {
 			log.Printf("error: %s\n", err)
 		}
 		log.Println(data)
-		if data[0] == 'L' && data[1] == 'M' && data[2] == 18 && data[3] == '+' && data[22] == '#' {
-			xAccRaw := mergeBytes(data[4], data[5])
-			yAccRaw := mergeBytes(data[6], data[7])
-			zAccRaw := mergeBytes(data[8], data[9])
-			xGyroRaw := mergeBytes(data[10], data[11])
-			yGyroRaw := mergeBytes(data[12], data[13])
-			zGyroRaw := mergeBytes(data[14], data[15])
-			xMagRaw := mergeBytes(data[16], data[17])
-			yMagRaw := mergeBytes(data[18], data[19])
-			zMagRaw := mergeBytes(data[20], data[21])
+		if data[0] == 'L' && data[1] == 'F' && data[2] == 36 && data[3] == '+' && data[40] == '#' {
+			xAccRaw := Float32frombytes(data[4:8])
+			yAccRaw := Float32frombytes(data[8:12])
+			zAccRaw := Float32frombytes(data[12:16])
+			xGyroRaw := Float32frombytes(data[16:20])
+			yGyroRaw := Float32frombytes(data[20:24])
+			zGyroRaw := Float32frombytes(data[24:28])
+			xMagRaw := Float32frombytes(data[28:32])
+			yMagRaw := Float32frombytes(data[32:36])
+			zMagRaw := Float32frombytes(data[36:40])
 			timeDiff := time.Now().Sub(t)
 			t = time.Now()
 
-			log.Printf("OK %5d %5d %5d   %5d %5d %5d   %5d %5d %5d   %d\n",
+			log.Printf("OK %f %f %f   %f %f %f   %f %f %f   %d\n",
 				xAccRaw, yAccRaw, zAccRaw,
 				xGyroRaw, yGyroRaw, zGyroRaw,
 				xMagRaw, yMagRaw, zMagRaw, timeDiff.Nanoseconds())
-			fmt.Printf("%5d %5d %5d   %5d %5d %5d   %5d %5d %5d\n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw, xMagRaw, yMagRaw, zMagRaw)
+			fmt.Printf("%f %f %f   %f %f %f   %f %f %f\n", xAccRaw, yAccRaw, zAccRaw, xGyroRaw, yGyroRaw, zGyroRaw, xMagRaw, yMagRaw, zMagRaw)
 		} else {
 			log.Println("BAD FRAME")
 			continue
@@ -58,7 +60,7 @@ func main() {
 
 func readFrame(port *serial.Port, data []byte, header rune) (err error) {
 	scan := false
-	for i := 0; i < 24; i++ {
+	for i := 0; i < 42; i++ {
 		buf := make([]byte, 1)
 		_, err := port.Read(buf)
 		if err != nil {
@@ -87,4 +89,11 @@ func mergeBytes(left8 byte, right8 byte) (v int) {
 		v = -65536 + v
 	}
 	return
+}
+
+// convert 4 bytes to float32
+func Float32frombytes(bytes []byte) float32 {
+	bits := binary.LittleEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
+	return float
 }
